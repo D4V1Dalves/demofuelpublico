@@ -1,0 +1,71 @@
+<%- include('partials/top') %>
+<%
+  const unitLabel = function (unit, count) {
+    if (unit === 'dia') return count === 1 ? 'dia' : 'dias';
+    if (unit === 'semana') return count === 1 ? 'semana' : 'semanas';
+    return count === 1 ? 'mês' : 'meses';
+  };
+%>
+<div class="page-head">
+  <div class="head-center">
+    <h1 class="page-title">Agendamentos</h1>
+    <p class="muted">Regras que geram jobs automaticamente a partir de um modelo.</p>
+  </div>
+  <div class="head-action"><a class="button" href="/agendamentos/nova">+ Nova regra</a></div>
+</div>
+
+<section class="card table-card">
+  <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Regra</th>
+          <th>Cliente</th>
+          <th>Periodicidade</th>
+          <th>Horário</th>
+          <th>Próxima execução</th>
+          <th>Última execução</th>
+          <th>Gerados</th>
+          <th>Status</th>
+          <th class="col-actions">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rules.forEach(function (rule) { %>
+          <tr>
+            <td>
+              <strong><%= rule.name %></strong>
+              <span class="muted small"><%= rule.title %></span>
+            </td>
+            <td><%= rule.client_name %></td>
+            <td><%= rule.interval_value %> <%= unitLabel(rule.interval_unit, rule.interval_value) %></td>
+            <td><%= rule.start_time %></td>
+            <td><%= rule.active ? fmtDateTime(rule.next_run_at) : '—' %></td>
+            <td><%= fmtDateTime(rule.last_run_at) %></td>
+            <td><%= rule.generated_count %></td>
+            <td><span class="badge <%= rule.active ? 'priority-alta' : '' %>"><%= rule.active ? 'Ativa' : 'Pausada' %></span></td>
+            <td class="col-actions">
+              <div class="row-actions">
+                <a class="link-button" href="/agendamentos/<%= rule.id %>/editar">Editar</a>
+                <form class="inline" method="post" action="/agendamentos/<%= rule.id %>/alternar">
+                  <button class="link-button" type="submit"><%= rule.active ? 'Pausar' : 'Ativar' %></button>
+                </form>
+                <form class="inline" method="post" action="/agendamentos/<%= rule.id %>/executar">
+                  <button class="link-button" type="submit">Executar agora</button>
+                </form>
+                <form class="inline" method="post" action="/agendamentos/<%= rule.id %>/excluir" onsubmit="return confirm('Excluir esta regra? Os jobs já gerados permanecem.');">
+                  <button class="link-button danger" type="submit">Excluir</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+        <% if (rules.length === 0) { %>
+          <tr><td colspan="9" class="muted empty-cell">Nenhuma regra cadastrada. Crie uma para gerar jobs automaticamente.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/bottom') %>

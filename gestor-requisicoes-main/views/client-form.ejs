@@ -1,0 +1,41 @@
+<%- include('partials/top') %>
+<%
+  const v = current || {};
+  const isEdit = Boolean(v.id);
+  const action = isEdit ? '/clientes/' + v.id + '/editar' : '/clientes';
+%>
+<div class="page-head"><h1 class="page-title"><%= title %></h1><a class="back-link" href="/clientes">Clientes</a></div>
+
+<form class="card form-grid" method="post" action="<%= action %>">
+  <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+
+  <label for="name">Nome</label>
+  <input id="name" name="name" value="<%= v.name || '' %>" required autofocus>
+
+  <label for="description">Descrição da loja/cliente</label>
+  <textarea id="description" name="description" maxlength="20000"><%= v.description || '' %></textarea>
+
+  <label for="website">Site</label>
+  <input id="website" name="website" type="text" placeholder="https://..." value="<%= v.website || '' %>">
+
+  <label for="instagram">Instagram</label>
+  <input id="instagram" name="instagram" placeholder="@usuario ou https://..." value="<%= v.instagram || '' %>">
+
+  <label for="facebook">Facebook</label>
+  <input id="facebook" name="facebook" placeholder="facebook.com/pagina" value="<%= v.facebook || '' %>">
+
+  <label for="whatsapp">WhatsApp</label>
+  <input id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999 ou https://wa.me/..." value="<%= v.whatsapp || '' %>">
+
+  <label for="linkedin">LinkedIn</label>
+  <input id="linkedin" name="linkedin" placeholder="linkedin.com/company/..." value="<%= v.linkedin || '' %>">
+
+  <label for="phone">Telefone</label>
+  <input id="phone" name="phone" value="<%= v.phone || '' %>">
+
+  <label for="email">E-mail</label>
+  <input id="email" name="email" type="email" value="<%= v.email || '' %>">
+
+  <div class="form-actions"><button class="primary" type="submit">Salvar</button></div>
+</form>
+<%- include('partials/bottom') %>

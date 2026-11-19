@@ -1,0 +1,71 @@
+<%- include('partials/top') %>
+<%
+  const v = current || {};
+  const isEdit = Boolean(v.id);
+  const action = isEdit ? '/agendamentos/' + v.id + '/editar' : '/agendamentos';
+%>
+<div class="page-head">
+  <h1 class="page-title"><%= isEdit ? 'Editar agendamento' : 'Nova regra de agendamento' %></h1>
+  <a class="back-link" href="/agendamentos">Agendamentos</a>
+</div>
+
+<form class="card form-grid" method="post" action="<%= action %>">
+  <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+
+  <label for="name">Nome da regra</label>
+  <input id="name" name="name" value="<%= v.name || '' %>" required autofocus placeholder="Ex.: Relatório semanal">
+
+  <label for="client_id">Cliente</label>
+  <select id="client_id" name="client_id" required>
+    <option value="">Selecione…</option>
+    <% clients.forEach(function (c) { %>
+      <option value="<%= c.id %>" <%= String(v.client_id || '') === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+    <% }); %>
+  </select>
+
+  <label for="title">Título do job gerado</label>
+  <input id="title" name="title" value="<%= v.title || '' %>" required placeholder="Modelo pronto para o job">
+
+  <label for="description">Descrição do modelo</label>
+  <textarea id="description" name="description" maxlength="20000"><%= v.description || '' %></textarea>
+
+  <label for="priority">Prioridade</label>
+  <select id="priority" name="priority">
+    <% PRIORITIES.forEach(function (p) { %>
+      <option value="<%= p %>" <%= (v.priority || 'Média') === p ? 'selected' : '' %>><%= p %></option>
+    <% }); %>
+  </select>
+
+  <label for="responsible_id">Responsável</label>
+  <select id="responsible_id" name="responsible_id">
+    <option value="">Sem responsável</option>
+    <% users.forEach(function (u) { %>
+      <option value="<%= u.id %>" <%= String(v.responsible_id || '') === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+    <% }); %>
+  </select>
+
+  <label for="due_days">Prazo do job (dias)</label>
+  <input id="due_days" name="due_days" type="number" min="0" max="365" value="<%= v.due_days == null ? 0 : v.due_days %>">
+
+  <label for="dropbox_url">Link Dropbox (opcional)</label>
+  <input id="dropbox_url" name="dropbox_url" type="url" placeholder="https://www.dropbox.com/s/..." value="<%= v.dropbox_url || '' %>">
+
+  <label for="interval_value">Gerar de quantos em quantos</label>
+  <input id="interval_value" name="interval_value" type="number" min="1" max="365" value="<%= v.interval_value || 1 %>" required>
+
+  <label for="interval_unit">Unidade</label>
+  <select id="interval_unit" name="interval_unit">
+    <option value="dia" <%= v.interval_unit === 'dia' ? 'selected' : '' %>>Dia(s)</option>
+    <option value="semana" <%= v.interval_unit === 'semana' ? 'selected' : '' %>>Semana(s)</option>
+    <option value="mes" <%= v.interval_unit === 'mes' ? 'selected' : '' %>>Mês(es)</option>
+  </select>
+
+  <label for="start_time">Horário inicial (local do servidor)</label>
+  <input id="start_time" name="start_time" type="time" value="<%= v.start_time || '09:00' %>" required>
+
+  <div class="form-actions form-actions-wide">
+    <button class="primary" type="submit">Salvar regra</button>
+    <a class="button ghost" href="/agendamentos">Cancelar</a>
+  </div>
+</form>
+<%- include('partials/bottom') %>

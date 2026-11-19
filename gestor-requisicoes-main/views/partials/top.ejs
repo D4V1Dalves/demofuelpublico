@@ -1,0 +1,138 @@
+<% const ui = typeof t !== 'undefined' && t ? t : { htmlLang: 'pt-BR', themeDark: 'Tema escuro', themeLight: 'Tema claro' }; %>
+<!doctype html>
+<html lang="<%= ui.htmlLang %>" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · Fuel Jobs</title>
+  <script>
+    // Aplica o tema antes do primeiro paint para evitar flash.
+    try {
+      var savedTheme = localStorage.getItem('fuel-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    } catch (error) { /* localStorage indisponível */ }
+  </script>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="apple-touch-icon" href="/static/favicon.png">
+  <meta name="theme-color" content="#05070b">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/attachments.css">
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' && bodyClass ? bodyClass : '' %>">
+<% const standalonePage = typeof bodyClass !== 'undefined' && bodyClass === 'approval-page'; %>
+<% if (user && !standalonePage) { %>
+<% const onPath = (prefix) => path === prefix || path.startsWith(prefix + '/'); %>
+<% const sidebarClients = loadSidebarClients(); %>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+    <div class="sidebar-head">
+      <a class="brand brand-mark" href="/dashboard" aria-label="Fuel Jobs">
+        <img class="brand-logo" src="/static/logo-fuel.svg" alt="Fuel Jobs" width="615" height="281">
+      </a>
+      <button class="icon-button sidebar-close" type="button" data-sidebar-toggle aria-label="Fechar menu">✕</button>
+    </div>
+
+    <nav class="side-nav" aria-label="Atalhos">
+      <p class="nav-label">Workspace</p>
+      <% if (user.role === 'admin') { %>
+        <a class="create-job" href="/requisicoes/nova">
+          <span class="create-job-plus" aria-hidden="true">＋</span>Novo job
+        </a>
+      <% } %>
+      <a class="side-link<%= onPath('/dashboard') && query.mine !== '1' ? ' is-active' : '' %>" href="/dashboard"<%= onPath('/dashboard') && query.mine !== '1' ? ' aria-current="page"' : '' %>>
+        <span class="side-icon" aria-hidden="true">▦</span>Dashboard
+      </a>
+      <a class="side-link<%= query.mine === '1' ? ' is-active' : '' %>" href="/dashboard?mine=1"<%= query.mine === '1' ? ' aria-current="page"' : '' %>>
+        <span class="side-icon" aria-hidden="true">◎</span>Meu trabalho
+      </a>
+      <a class="side-link<%= onPath('/relatorios') ? ' is-active' : '' %>" href="/relatorios"<%= onPath('/relatorios') ? ' aria-current="page"' : '' %>>
+        <span class="side-icon" aria-hidden="true">▤</span>Relatórios
+      </a>
+
+      <p class="nav-label">Administração</p>
+      <a class="side-link<%= path === '/clientes' ? ' is-active' : '' %>" href="/clientes"<%= path === '/clientes' ? ' aria-current="page"' : '' %>>
+        <span class="side-icon" aria-hidden="true">◍</span>Clientes
+      </a>
+      <% if (user.role === 'admin') { %>
+        <a class="side-link<%= onPath('/agendamentos') ? ' is-active' : '' %>" href="/agendamentos"<%= onPath('/agendamentos') ? ' aria-current="page"' : '' %>>
+          <span class="side-icon" aria-hidden="true">↻</span>Agendamentos
+        </a>
+      <% } %>
+
+      <p class="nav-label">
+        Clientes
+        <span class="nav-badge"><%= sidebarClients.length %></span>
+      </p>
+      <div class="side-clients">
+        <% sidebarClients.forEach(function (client) { %>
+          <a class="side-client<%= path === '/clientes/' + client.id ? ' is-active' : '' %>"
+             href="/clientes/<%= client.id %>"
+             <%= path === '/clientes/' + client.id ? 'aria-current="page"' : '' %>>
+            <span class="side-client-dot" aria-hidden="true"></span>
+            <span class="side-client-name"><%= client.name %></span>
+            <% if (client.job_count) { %><span class="side-client-count"><%= client.job_count %></span><% } %>
+          </a>
+        <% }); %>
+        <% if (sidebarClients.length === 0) { %>
+          <p class="side-empty">Nenhum cliente cadastrado ainda.</p>
+        <% } %>
+      </div>
+      <a class="side-client-all" href="/clientes">Ver todos os clientes</a>
+    </nav>
+
+    <% const inSettings = ['/configuracoes', '/configuracoes/ia', '/perfil', '/perfil/senha', '/usuarios'].includes(path); %>
+    <a class="side-link side-settings<%= inSettings ? ' is-active' : '' %>" href="/configuracoes"<%= inSettings ? ' aria-current="page"' : '' %>>
+      <svg class="side-settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M19.14 12.94a7.07 7.07 0 0 0 .05-.94 7.07 7.07 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.49.42l-.36 2.54a7.03 7.03 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.66 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.07 7.07 0 0 0-.05.94c0 .32.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.38 1.05.7 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54a7.03 7.03 0 0 0 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/>
+      </svg>
+      Configurações
+    </a>
+
+    <a class="sidebar-user" href="/perfil" aria-label="Abrir meu perfil">
+      <% if (user.avatar) { %>
+        <img class="avatar" src="<%= avatarUrl(user.avatar) %>" alt="">
+      <% } else { %>
+        <span class="avatar av-<%= user.id % 6 %>" aria-hidden="true"><%= initials(user.name) %></span>
+      <% } %>
+      <span class="sidebar-user-info">
+        <strong><%= user.name %></strong>
+        <span class="role-tag role-<%= user.role %>"><%= user.role === 'admin' ? 'Administrador' : 'Usuário' %></span>
+      </span>
+    </a>
+  </aside>
+  <button class="sidebar-scrim" type="button" data-sidebar-toggle aria-label="Fechar menu" tabindex="-1"></button>
+
+  <div class="app-main">
+    <header class="workspace-bar">
+      <button class="icon-button menu-button" type="button" data-sidebar-toggle aria-label="Abrir menu">☰</button>
+      <div class="crumbs">
+        <span class="crumb-muted">Workspace</span>
+        <span class="crumb-sep" aria-hidden="true">/</span>
+        <strong><%= title %></strong>
+      </div>
+      <div class="bar-actions">
+        <form class="search-mini" method="get" action="/dashboard" role="search">
+          <% if (query.mine === '1') { %><input type="hidden" name="mine" value="1"><% } %>
+          <input id="global-search" name="q" type="search" aria-label="Buscar jobs"
+                 placeholder="Buscar jobs"
+                 value="<%= typeof filters !== 'undefined' && filters && filters.q ? filters.q : '' %>">
+        </form>
+        <form class="inline" method="post" action="/logout">
+          <button class="link-button" type="submit">Sair</button>
+        </form>
+      </div>
+    </header>
+
+    <main class="container">
+<% } else { %>
+    <button class="theme-toggle theme-toggle-floating" type="button" data-theme-toggle aria-pressed="true"
+            data-label-dark="<%= ui.themeDark %>" data-label-light="<%= ui.themeLight %>">
+      <span class="theme-toggle-track" aria-hidden="true">
+        <span class="theme-toggle-thumb"><span class="theme-toggle-icon">☾</span></span>
+      </span>
+      <span data-theme-label><%= ui.themeDark %></span>
+    </button>
+    <main class="container container--guest">
+<% } %>

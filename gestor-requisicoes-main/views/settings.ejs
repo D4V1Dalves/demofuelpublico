@@ -1,0 +1,22 @@
+<%- include('partials/top') %>
+<%- include('partials/settings-head') %>
+
+<section class="card settings-card">
+  <h2>Tema</h2>
+  <p class="muted">Escolha como o Fuel Jobs aparece neste navegador.</p>
+  <div class="theme-choices" role="radiogroup" aria-label="Tema">
+    <button class="theme-choice" type="button" role="radio" data-theme-choice="dark" aria-checked="false">
+      <span class="theme-choice-preview is-dark" aria-hidden="true">
+        <span class="tcp-side"></span><span class="tcp-bar"></span><span class="tcp-card"></span><span class="tcp-card"></span>
+      </span>
+      <span class="theme-choice-label">Escuro</span>
+    </button>
+    <button class="theme-choice" type="button" role="radio" data-theme-choice="light" aria-checked="false">
+      <span class="theme-choice-preview is-light" aria-hidden="true">
+        <span class="tcp-side"></span><span class="tcp-bar"></span><span class="tcp-card"></span><span class="tcp-card"></span>
+      </span>
+      <span class="theme-choice-label">Claro</span>
+    </button>
+  </div>
+</section>
+<%- include('partials/bottom') %>

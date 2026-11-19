@@ -1,0 +1,67 @@
+<%- include('partials/top') %>
+<%- include('partials/settings-head') %>
+
+<% if (notice) { %><p class="alert ok" role="status"><%= notice %></p><% } %>
+<% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+
+<section class="card">
+  <table class="users-table">
+    <thead><tr><th class="col-photo">Foto</th><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th>Criado em</th><th>Ações</th></tr></thead>
+    <tbody>
+      <% users.forEach(function (u) { const isActive = Number(u.active) === 1; %>
+        <tr class="<%= isActive ? '' : 'is-inactive' %>">
+          <td class="col-photo">
+            <% if (u.avatar) { %>
+              <img class="avatar avatar-sm" src="<%= avatarUrl(u.avatar) %>" alt="">
+            <% } else { %>
+              <span class="avatar avatar-sm av-<%= u.id % 6 %>" aria-hidden="true"><%= initials(u.name) %></span>
+            <% } %>
+          </td>
+          <td><%= u.name %></td><td><%= u.email %></td><td><%= u.role === 'admin' ? 'Admin' : 'Usuário' %></td>
+          <td><span class="user-status<%= isActive ? ' is-on' : '' %>"><%= isActive ? 'Ativo' : 'Desativado' %></span></td>
+          <td><%= fmtDate(u.created_at) %></td>
+          <td class="user-actions">
+            <% if (u.id !== user.id) { %>
+              <% if (isActive) { %>
+                <form method="post" action="/usuarios/<%= u.id %>/desativar" data-confirm="Desativar <%= u.name %>? A pessoa sai do sistema e não consegue mais entrar.">
+                  <button class="link-button danger" type="submit">Desativar</button>
+                </form>
+              <% } else { %>
+                <form method="post" action="/usuarios/<%= u.id %>/ativar">
+                  <button class="link-button" type="submit">Reativar</button>
+                </form>
+              <% } %>
+            <% } %>
+            <details class="reset-password">
+              <summary>Redefinir senha</summary>
+              <form method="post" action="/usuarios/<%= u.id %>/senha" class="reset-password-form">
+                <label class="sr-only" for="reset-<%= u.id %>">Nova senha para <%= u.name %></label>
+                <input id="reset-<%= u.id %>" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Nova senha (mín. 8)" required>
+                <button class="button secondary" type="submit">Salvar</button>
+              </form>
+            </details>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</section>
+
+<section class="card new-user">
+  <h2>Novo usuário</h2>
+  <form class="form-grid" method="post" action="/usuarios">
+    <label for="name">Nome</label>
+    <input id="name" name="name" required autofocus>
+    <label for="email">E-mail</label>
+    <input id="email" name="email" type="email" required>
+    <label for="password">Senha (mín. 8 caracteres)</label>
+    <input id="password" name="password" type="password" minlength="8" required>
+    <label for="role">Perfil</label>
+    <select id="role" name="role">
+      <option value="user">Usuário</option>
+      <option value="admin">Admin</option>
+    </select>
+    <div class="form-actions"><button class="primary" type="submit">Criar usuário</button></div>
+  </form>
+</section>
+<%- include('partials/bottom') %>

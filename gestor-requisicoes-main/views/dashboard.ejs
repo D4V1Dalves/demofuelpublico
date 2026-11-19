@@ -1,0 +1,202 @@
+<%- include('partials/top', { bodyClass: 'board-page' }) %>
+<%
+  const fmtDay = fmtDayMonth;
+  const isLate = (row) => Boolean(row.due_date) && row.due_date < today && row.status !== 'Aprovado' && row.status !== 'Rejeitado';
+  const totalRows = STATUSES.reduce((sum, status) => sum + (groups[status] ? groups[status].length : 0), 0);
+  const hasFilters = Boolean(filters.cliente || filters.status || filters.q);
+%>
+
+<div class="board-head">
+  <div class="board-title">
+    <span class="board-badge" aria-hidden="true"><img src="/static/favicon.png" alt="" width="42" height="42"></span>
+    <div>
+      <h1><%= filters.mine ? 'Meu trabalho' : 'Fuel Jobs' %></h1>
+      <p class="board-subtitle"><%= filters.mine ? 'Jobs sob sua responsabilidade' : 'Acompanhamento dos jobs dos clientes' %></p>
+    </div>
+  </div>
+  <div class="board-actions">
+    <div class="view-switch" role="tablist" aria-label="Visualização do board">
+      <button class="view-button is-active" type="button" role="tab" aria-selected="true" data-view-toggle="table">Tabela</button>
+      <button class="view-button" type="button" role="tab" aria-selected="false" data-view-toggle="kanban">Kanban</button>
+    </div>
+    <% if (user.role === 'admin') { %>
+      <a class="button primary" href="/requisicoes/nova">+ Novo job</a>
+    <% } %>
+  </div>
+</div>
+
+<section class="kpis" aria-label="Indicadores">
+  <div class="kpi kpi-total">
+    <span class="kpi-label">Total de jobs</span>
+    <strong class="kpi-number"><%= stats.total %></strong>
+  </div>
+  <div class="kpi kpi-open">
+    <span class="kpi-label">Abertos</span>
+    <strong class="kpi-number"><%= stats.abertas %></strong>
+  </div>
+  <div class="kpi kpi-late">
+    <span class="kpi-label">Em atraso</span>
+    <strong class="kpi-number"><%= stats.atrasadas %></strong>
+  </div>
+  <div class="kpi kpi-done">
+    <span class="kpi-label">Concluídos</span>
+    <strong class="kpi-number"><%= stats.concluidas %></strong>
+  </div>
+</section>
+
+<form class="filters" method="get" action="/dashboard" role="search">
+  <% if (filters.mine) { %><input type="hidden" name="mine" value="1"><% } %>
+  <div class="filter-field">
+    <label for="q">Buscar</label>
+    <input id="q" name="q" type="search" value="<%= filters.q %>" placeholder="Título ou descrição">
+  </div>
+  <div class="filter-field">
+    <label for="cliente">Cliente</label>
+    <select id="cliente" name="cliente">
+      <option value="">Todos</option>
+      <% clients.forEach(function (c) { %>
+        <option value="<%= c.id %>" <%= String(filters.cliente) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="filter-field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">Todos</option>
+      <% STATUSES.forEach(function (s) { %>
+        <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }); %>
+    </select>
+  </div>
+  <button class="primary" type="submit">Filtrar</button>
+  <% if (hasFilters) { %><a class="button ghost" href="/dashboard<%= filters.mine ? '?mine=1' : '' %>">Limpar</a><% } %>
+</form>
+
+<% if (totalRows === 0) { %>
+  <div class="card board-empty" role="status">
+    <h2>Nenhum job encontrado</h2>
+    <p class="muted">Nenhum item corresponde aos filtros atuais.</p>
+    <div class="drawer-actions">
+      <% if (hasFilters) { %><a class="button secondary" href="/dashboard<%= filters.mine ? '?mine=1' : '' %>">Limpar filtros</a><% } %>
+      <% if (user.role === 'admin') { %><a class="button primary" href="/requisicoes/nova">+ Criar primeiro item</a><% } %>
+    </div>
+  </div>
+<% } else { %>
+
+<div class="board-view" data-view="table">
+  <div class="table-shell">
+    <table class="board-table">
+      <caption class="sr-only">Jobs agrupados por etapa</caption>
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Responsável</th>
+          <th scope="col">Status</th>
+          <th scope="col">Prioridade</th>
+          <th scope="col">Prazo</th>
+          <th scope="col" class="col-num">Coment.</th>
+          <th scope="col" class="col-num">Anexos</th>
+        </tr>
+      </thead>
+      <% STATUSES.forEach(function (status) { const rows = groups[status] || []; %>
+        <tbody class="group" data-status="<%= status %>" id="group-<%= STATUS_SLUG[status] %>">
+          <tr class="group-head">
+            <td colspan="8">
+              <button class="group-inner" type="button" aria-expanded="true" aria-controls="group-<%= STATUS_SLUG[status] %>">
+                <span class="group-caret" aria-hidden="true">▾</span>
+                <span class="group-color-dot" aria-hidden="true"></span>
+                <strong class="group-name"><%= status %></strong>
+                <span class="group-count"><%= rows.length %></span>
+              </button>
+            </td>
+          </tr>
+          <% rows.forEach(function (r) { %>
+            <tr class="item-row" data-id="<%= r.id %>">
+              <td class="col-item">
+                <a class="item-name" href="/requisicoes/<%= r.id %>" data-drawer="<%= r.id %>"><%= r.title %></a>
+              </td>
+              <td><span class="cell-text"><%= r.client_name %></span></td>
+              <td>
+                <% if (r.responsible_name) { %>
+                  <span class="person">
+                    <% if (r.responsible_avatar) { %>
+                      <img class="avatar avatar-sm" src="<%= avatarUrl(r.responsible_avatar) %>" alt="" aria-hidden="true">
+                    <% } else { %>
+                      <span class="avatar avatar-sm av-<%= (r.responsible_id || 0) % 6 %>" aria-hidden="true"><%= initials(r.responsible_name) %></span>
+                    <% } %>
+                    <span class="cell-text"><%= r.responsible_name %></span>
+                  </span>
+                <% } else { %>
+                  <span class="cell-empty">Sem responsável</span>
+                <% } %>
+              </td>
+              <td class="col-status">
+                <% if (user.role === 'admin') { %>
+                  <select class="status-select status-<%= STATUS_SLUG[r.status] %>"
+                          data-status-select
+                          data-request-id="<%= r.id %>"
+                          data-current-status="<%= r.status %>"
+                          aria-label="Alterar o status de <%= r.title %>">
+                    <% STATUSES.forEach(function (s) { %>
+                      <option value="<%= s %>" data-slug="<%= STATUS_SLUG[s] %>" <%= s === r.status ? 'selected' : '' %>><%= s %></option>
+                    <% }); %>
+                  </select>
+                <% } else { %>
+                  <span class="status-pill status-<%= STATUS_SLUG[r.status] %>"><%= r.status %></span>
+                <% } %>
+              </td>
+              <td><span class="priority-pill priority-<%= PRIORITY_SLUG[r.priority] %>"><%= r.priority %></span></td>
+              <td><span class="date-cell<%= isLate(r) ? ' is-late' : '' %>"><%= fmtDay(r.due_date) %></span></td>
+              <td class="col-num"><%= r.comment_count %></td>
+              <td class="col-num"><%= r.attachment_count %></td>
+            </tr>
+          <% }); %>
+          <% if (rows.length === 0) { %>
+            <tr class="item-row is-empty"><td class="col-item" colspan="8"><span class="cell-empty">Nenhum job nesta etapa</span></td></tr>
+          <% } %>
+        </tbody>
+      <% }); %>
+    </table>
+  </div>
+</div>
+
+<div class="board-view is-hidden" data-view="kanban">
+  <div class="board" id="board">
+    <% STATUSES.forEach(function (status) { %>
+      <section class="column" data-status="<%= status %>" data-slug="<%= STATUS_SLUG[status] %>">
+        <header class="column-head status-<%= STATUS_SLUG[status] %>">
+          <strong><%= status %></strong><span class="count"><%= groups[status] ? groups[status].length : 0 %></span>
+        </header>
+        <div class="column-body">
+          <% (groups[status] || []).forEach(function (r) { %>
+            <a class="req-card <%= user.role === 'admin' ? 'draggable' : '' %>"
+               href="/requisicoes/<%= r.id %>"
+               data-id="<%= r.id %>"
+               data-status="<%= r.status %>"
+               <% if (user.role === 'admin') { %>draggable="true"<% } %>>
+              <span class="client"><%= r.client_name %></span>
+              <h3><%= r.title %></h3>
+              <div class="badges">
+                <span class="status-pill status-<%= STATUS_SLUG[r.status] %>"><%= r.status %></span>
+                <span class="priority-pill priority-<%= PRIORITY_SLUG[r.priority] %>"><%= r.priority %></span>
+              </div>
+              <div class="card-meta"><%= r.responsible_name || 'Sem responsável' %> · <span class="<%= isLate(r) ? 'date-cell is-late' : '' %>"><%= fmtDay(r.due_date) %></span></div>
+            </a>
+          <% }); %>
+          <% if (!groups[status] || groups[status].length === 0) { %>
+            <p class="muted small empty-column">Nenhum job</p>
+          <% } %>
+        </div>
+      </section>
+    <% }); %>
+  </div>
+</div>
+
+<% } %>
+
+<aside class="item-drawer" id="item-drawer" aria-label="Detalhes do item" hidden></aside>
+<div class="drawer-backdrop" data-drawer-close hidden></div>
+
+<script src="/static/board.js" defer></script>
+<%- include('partials/bottom') %>
