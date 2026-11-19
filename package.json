@@ -1,0 +1,27 @@
+{
+  "name": "fuel-jobs",
+  "version": "7.1.0",
+  "private": true,
+  "description": "Fuel Jobs - quadro interno de jobs com aprovacao e sugestoes",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "test:mysql": "TEST_MYSQL=1 node --test --test-concurrency=1 tests/*.test.js",
+    "smoke:mysql": "node scripts/smoke-mysql.js",
+    "scheduler:run": "node scripts/run-scheduler.js",
+    "package": "git archive --format=zip --prefix=fueljobs/ -o fueljobs-deploy.zip HEAD"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.24.6"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

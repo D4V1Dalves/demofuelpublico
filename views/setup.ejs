@@ -1,0 +1,48 @@
+<%- include('partials/top', { bodyClass: 'login-page' }) %>
+<div class="auth-shell">
+  <section class="auth-brand" aria-label="Sobre o Fuel Jobs">
+    <span class="brand brand-mark" aria-label="Fuel Jobs">
+      <img class="brand-logo" src="/static/logo-fuel.svg" alt="Fuel Jobs" width="615" height="281">
+    </span>
+    <div class="auth-copy">
+      <p class="auth-kicker">Primeiro acesso</p>
+      <h1>Crie a conta do administrador.</h1>
+      <p>É a conta que cadastra clientes, usuários e configura o sistema. Esta tela só aparece uma vez.</p>
+    </div>
+    <span class="hero-wordmark" aria-hidden="true">FUEL</span>
+  </section>
+
+  <section class="auth-panel">
+    <form class="auth-card" method="post" action="/instalacao">
+      <h1>Instalação</h1>
+      <p class="muted">Guarde a senha: ela não pode ser recuperada por e-mail.</p>
+
+      <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+      <% if (tokenMissing) { %>
+        <p class="alert" role="alert">Para instalar, defina a variável <strong>INSTALL_TOKEN</strong> nas variáveis do app no cPanel (um código só seu) e reinicie o app.</p>
+      <% } %>
+
+      <% if (tokenRequired) { %>
+        <label for="install_token">Código de instalação</label>
+        <input id="install_token" name="install_token" type="password" autocomplete="off" required
+               aria-describedby="install-token-hint">
+        <p class="form-hint" id="install-token-hint">É o valor de INSTALL_TOKEN definido no cPanel. Impede que outra pessoa instale antes de você.</p>
+      <% } %>
+
+      <label for="name">Seu nome</label>
+      <input id="name" name="name" maxlength="120" required autofocus value="<%= values.name || '' %>">
+
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" maxlength="190" autocomplete="username" required value="<%= values.email || '' %>">
+
+      <label for="password">Senha (mín. 10 caracteres)</label>
+      <input id="password" name="password" type="password" minlength="10" autocomplete="new-password" required>
+
+      <label for="confirm_password">Confirmar senha</label>
+      <input id="confirm_password" name="confirm_password" type="password" minlength="10" autocomplete="new-password" required>
+
+      <button class="primary" type="submit">Criar administrador e entrar</button>
+    </form>
+  </section>
+</div>
+<%- include('partials/bottom') %>

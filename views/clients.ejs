@@ -1,0 +1,68 @@
+<%- include('partials/top') %>
+<div class="page-head"><h1 class="page-title">Clientes</h1><a class="back-link" href="/dashboard">Dashboard</a></div>
+
+<% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+
+<section class="card table-card">
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr><th>Cliente</th><th>Contato</th><th>Jobs</th><th>Redes sociais</th><th class="col-actions">Ações</th></tr>
+      </thead>
+      <tbody>
+        <% clients.forEach(function (client) { %>
+          <tr>
+            <td><a href="/clientes/<%= client.id %>"><strong><%= client.name %></strong></a><span class="muted small"><%= client.description %></span></td>
+            <td><%= client.email || '—' %><span class="muted small"><%= client.phone || '' %></span></td>
+            <td><%= client.job_count %></td>
+            <td>
+              <% if (client.instagram) { %><a class="badge" href="<%= client.instagram %>" target="_blank" rel="noopener">Instagram</a><% } %>
+              <% if (client.facebook) { %><a class="badge" href="<%= client.facebook %>" target="_blank" rel="noopener">Facebook</a><% } %>
+              <% if (client.whatsapp) { %><a class="badge" href="<%= client.whatsapp %>" target="_blank" rel="noopener">WhatsApp</a><% } %>
+              <% if (client.linkedin) { %><a class="badge" href="<%= client.linkedin %>" target="_blank" rel="noopener">LinkedIn</a><% } %>
+            </td>
+            <td class="col-actions">
+              <div class="row-actions">
+                <a class="link-button" href="/clientes/<%= client.id %>">Ficha</a>
+                <% if (user.role === 'admin') { %>
+                  <a class="link-button" href="/clientes/<%= client.id %>/editar">Editar</a>
+                  <form class="inline" method="post" action="/clientes/<%= client.id %>/excluir" onsubmit="return confirm('Excluir este cliente?');">
+                    <button class="link-button danger" type="submit">Excluir</button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<% if (user.role === 'admin') { %>
+  <section class="card new-user">
+    <h2>Novo cliente</h2>
+    <form class="form-grid" method="post" action="/clientes">
+      <label for="name">Nome</label>
+      <input id="name" name="name" required autofocus>
+      <label for="description">Descrição da loja/cliente</label>
+      <textarea id="description" name="description" maxlength="20000"></textarea>
+      <label for="website">Site</label>
+      <input id="website" name="website" type="text" placeholder="https://...">
+      <label for="instagram">Instagram</label>
+      <input id="instagram" name="instagram" placeholder="@usuario ou https://...">
+      <label for="facebook">Facebook</label>
+      <input id="facebook" name="facebook" placeholder="facebook.com/pagina">
+      <label for="whatsapp">WhatsApp</label>
+      <input id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999 ou https://wa.me/...">
+      <label for="linkedin">LinkedIn</label>
+      <input id="linkedin" name="linkedin" placeholder="linkedin.com/company/...">
+      <label for="phone">Telefone</label>
+      <input id="phone" name="phone">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email">
+      <div class="form-actions"><button class="primary" type="submit">Criar cliente</button></div>
+    </form>
+  </section>
+<% } %>
+<%- include('partials/bottom') %>

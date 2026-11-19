@@ -1,0 +1,32 @@
+<% const standalonePage = typeof bodyClass !== 'undefined' && bodyClass === 'approval-page'; %>
+<% const ui = typeof t !== 'undefined' && t ? t : { dialogConfirmTitle: 'Confirmar ação', cancel: 'Cancelar', dialogConfirm: 'Confirmar', previewKicker: 'Anexo', previewTitle: 'Visualizar arquivo', previewClose: 'Fechar visualização' }; %>
+<% if (user && !standalonePage) { %>
+    </main>
+  </div>
+</div>
+<% } else { %>
+    </main>
+<% } %>
+<dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+  <form method="dialog">
+    <h2 id="confirm-title"><%= ui.dialogConfirmTitle %></h2>
+    <p id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button class="button ghost" value="cancel" type="submit"><%= ui.cancel %></button>
+      <button class="button danger" value="confirm" type="submit"><%= ui.dialogConfirm %></button>
+    </div>
+  </form>
+</dialog>
+<dialog class="preview-dialog" id="attachment-preview" aria-labelledby="preview-title">
+  <div class="preview-head">
+    <div>
+      <span class="preview-kicker"><%= ui.previewKicker %></span>
+      <h2 id="preview-title"><%= ui.previewTitle %></h2>
+    </div>
+    <button class="icon-button" type="button" data-preview-close aria-label="<%= ui.previewClose %>">✕</button>
+  </div>
+  <div class="preview-body" data-preview-body></div>
+</dialog>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

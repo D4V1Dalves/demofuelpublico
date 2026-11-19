@@ -1,0 +1,67 @@
+<%- include('partials/top') %>
+<div class="page-head">
+  <span class="page-title">Ficha do cliente</span>
+  <div class="row-actions">
+    <% if (user.role === 'admin') { %><a class="button secondary" href="/clientes/<%= cliente.id %>/editar">Editar cliente</a><% } %>
+    <a class="back-link" href="/clientes">Clientes</a>
+  </div>
+</div>
+
+<section class="card detail-head client-head">
+  <span class="badge detail-kicker">Cliente #<%= cliente.id %></span>
+  <h1 class="detail-title"><%= cliente.name %></h1>
+  <% if (cliente.description) { %><p class="muted"><%= cliente.description %></p><% } %>
+</section>
+
+<div class="detail-grid">
+  <section class="card">
+    <h2>Jobs do cliente</h2>
+    <% if (jobs.length === 0) { %>
+      <p class="muted">Nenhum job vinculado a este cliente.</p>
+    <% } else { %>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Job</th><th>Status</th><th>Prioridade</th><th>Prazo</th></tr></thead>
+          <tbody>
+            <% jobs.forEach(function (job) { %>
+              <tr>
+                <td><a href="/requisicoes/<%= job.id %>"><strong><%= job.title %></strong></a><span class="muted small"><%= job.comment_count %> comentário(s)</span></td>
+                <td><span class="badge"><%= job.status %></span></td>
+                <td><%= job.priority %></td>
+                <td><%= fmtDate(job.due_date) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <aside class="card client-contacts">
+    <h2>Contatos e links</h2>
+    <dl class="contact-list">
+      <% if (cliente.email) { %>
+        <div><dt>E-mail</dt><dd><a href="mailto:<%= cliente.email %>"><%= cliente.email %></a></dd></div>
+      <% } %>
+      <% if (cliente.phone) { %>
+        <div><dt>Telefone</dt><dd><%= cliente.phone %></dd></div>
+      <% } %>
+      <% if (cliente.website) { %>
+        <div><dt>Site</dt><dd><a href="<%= cliente.website %>" target="_blank" rel="noopener"><%= cliente.website %></a></dd></div>
+      <% } %>
+      <% if (cliente.instagram) { %>
+        <div><dt>Instagram</dt><dd><a href="<%= cliente.instagram %>" target="_blank" rel="noopener"><%= cliente.instagram %></a></dd></div>
+      <% } %>
+      <% if (cliente.facebook) { %>
+        <div><dt>Facebook</dt><dd><a href="<%= cliente.facebook %>" target="_blank" rel="noopener"><%= cliente.facebook %></a></dd></div>
+      <% } %>
+      <% if (cliente.whatsapp) { %>
+        <div><dt>WhatsApp</dt><dd><a href="<%= cliente.whatsapp %>" target="_blank" rel="noopener"><%= cliente.whatsapp %></a></dd></div>
+      <% } %>
+      <% if (cliente.linkedin) { %>
+        <div><dt>LinkedIn</dt><dd><a href="<%= cliente.linkedin %>" target="_blank" rel="noopener"><%= cliente.linkedin %></a></dd></div>
+      <% } %>
+    </dl>
+  </aside>
+</div>
+<%- include('partials/bottom') %>

@@ -1,0 +1,70 @@
+<div class="drawer">
+  <header class="drawer-head">
+    <span class="status-pill status-<%= STATUS_SLUG[request.status] %>"><%= request.status %></span>
+    <button class="icon-button" type="button" data-drawer-close aria-label="Fechar detalhes">✕</button>
+  </header>
+
+  <h2 id="drawer-title"><%= request.title %></h2>
+  <p class="drawer-client"><%= request.client_name %></p>
+
+  <dl class="drawer-meta">
+    <div>
+      <dt>Responsável</dt>
+      <dd><%= request.responsible_name || 'Sem responsável' %></dd>
+    </div>
+    <div>
+      <dt>Prioridade</dt>
+      <dd><span class="priority-pill priority-<%= PRIORITY_SLUG[request.priority] %>"><%= request.priority %></span></dd>
+    </div>
+    <div>
+      <dt>Prazo</dt>
+      <dd><%= fmtDate(request.due_date, 'Sem prazo') %></dd>
+    </div>
+    <div>
+      <dt>Criado em</dt>
+      <dd><%= fmtDateTime(request.created_at) %></dd>
+    </div>
+    <div>
+      <dt>Comentários</dt>
+      <dd><%= comments.length %></dd>
+    </div>
+    <div>
+      <dt>Anexos</dt>
+      <dd><%= attachments.length %></dd>
+    </div>
+  </dl>
+
+  <% if (request.description) { %>
+    <section class="drawer-section">
+      <h3>Descrição</h3>
+      <p><%= request.description %></p>
+    </section>
+  <% } %>
+
+  <%- include('timer') %>
+
+  <% if (comments.length) { %>
+    <section class="drawer-section">
+      <h3>Últimos comentários</h3>
+      <ul class="drawer-feed">
+        <% comments.forEach(function (comment) { %>
+          <li>
+            <span class="avatar avatar-sm av-<%= (comment.user_id || 0) % 6 %>" aria-hidden="true"><%= initials(comment.user_name) %></span>
+            <div>
+              <strong><%= comment.user_name %></strong>
+              <span class="small muted"><%= fmtDateTime(comment.created_at) %></span>
+              <p><%= comment.body %></p>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  <% } %>
+
+  <div class="drawer-actions">
+    <% if (request.dropbox_url) { %>
+      <a class="button secondary" href="<%= request.dropbox_url %>" target="_blank" rel="noopener noreferrer">Abrir no Dropbox</a>
+    <% } %>
+    <a class="button primary" href="/requisicoes/<%= request.id %>">Abrir item completo</a>
+  </div>
+</div>

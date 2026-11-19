@@ -1,0 +1,58 @@
+<%- include('partials/top') %>
+<%- include('partials/settings-head') %>
+
+<% if (notice) { %><p class="alert ok" role="status">Configuração da IA salva.</p><% } %>
+<% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+
+<section class="card settings-card">
+  <h2>IA das sugestões</h2>
+  <p class="muted">
+    A IA escreve as sugestões de texto na tela de cada job. Sem uma IA configurada, o app sugere trechos de jobs parecidos.
+  </p>
+  <p class="settings-status">
+    <% if (active) { %>
+      <span class="status-dot is-on" aria-hidden="true"></span>
+      Em uso: <strong><%= active.provider %></strong>, modelo <strong><%= active.model %></strong>
+      <% if (active.source === 'ambiente') { %>(definido nas variáveis de ambiente do servidor)<% } %>
+    <% } else if (disabledByAdmin) { %>
+      <span class="status-dot" aria-hidden="true"></span>
+      IA desativada: as sugestões vêm de jobs parecidos.<% if (hasStoredKey) { %> A chave continua salva para reativar.<% } %>
+    <% } else { %>
+      <span class="status-dot" aria-hidden="true"></span>
+      Nenhuma IA configurada: as sugestões vêm de jobs parecidos.
+    <% } %>
+  </p>
+
+  <form class="form-grid settings-form" method="post" action="/configuracoes/ia" autocomplete="off">
+    <label for="provider">Provedor</label>
+    <select id="provider" name="provider">
+      <% if (envAi) { %>
+        <option value="ambiente"<%= form.provider === 'ambiente' ? ' selected' : '' %>>Usar a do servidor (<%= envAi.provider %>, <%= envAi.model %>)</option>
+      <% } %>
+      <option value=""<%= form.provider === '' ? ' selected' : '' %>>Desativada (usar jobs parecidos)</option>
+      <% Object.keys(providers).forEach(function (key) { %>
+        <option value="<%= key %>"<%= form.provider === key ? ' selected' : '' %>><%= providers[key].label %></option>
+      <% }); %>
+    </select>
+
+    <label for="model">Modelo</label>
+    <div>
+      <input id="model" name="model" type="text" maxlength="100" value="<%= form.model || '' %>"
+             placeholder="Padrão: <%= providers.anthropic.defaultModel %> (Anthropic) ou <%= providers.openai.defaultModel %> (OpenAI)">
+      <p class="form-hint">Deixe em branco para usar o modelo padrão do provedor.</p>
+    </div>
+
+    <label for="api_key">Chave da API</label>
+    <div>
+      <input id="api_key" name="api_key" type="password" maxlength="500" autocomplete="new-password" spellcheck="false"
+             placeholder="<%= hasStoredKey ? 'Chave salva: ' + maskedKey + ' (deixe em branco para manter)' : 'Cole a chave da API' %>">
+      <% if (hasStoredKey) { %>
+        <label class="checkbox-line"><input type="checkbox" name="remove_key" value="1"> Remover a chave salva</label>
+      <% } %>
+      <p class="form-hint">A chave fica guardada no servidor e nunca é mostrada de novo.</p>
+    </div>
+
+    <div class="form-actions"><button class="primary" type="submit">Salvar configuração</button></div>
+  </form>
+</section>
+<%- include('partials/bottom') %>

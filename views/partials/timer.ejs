@@ -1,0 +1,54 @@
+<section class="card timer-card" id="timer">
+  <div class="timer-head">
+    <div>
+      <h2>Controle de tempo</h2>
+      <p class="muted small">O timer é salvo no servidor e continua contando mesmo se você fechar o navegador.</p>
+    </div>
+    <div class="timer-total">
+      <span class="timer-total-label">Total do job</span>
+      <strong class="timer-clock" data-timer-total="<%= timeTotal %>"
+              data-timer-running="<%= timers.some(function (row) { return row.status === 'running'; }) ? 'true' : 'false' %>">
+        <%= formatDuration(timeTotal) %>
+      </strong>
+    </div>
+  </div>
+
+  <% if (timer) { %>
+    <div class="timer-current timer-<%= timer.status %>">
+      <span class="timer-dot" aria-hidden="true"></span>
+      <span class="timer-status">
+        <%= timer.status === 'running' ? 'Em andamento' : timer.status === 'paused' ? 'Pausado' : 'Concluído' %>
+      </span>
+      <strong class="timer-clock" data-timer-seconds="<%= elapsedSeconds(timer) %>"
+              data-timer-running="<%= timer.status === 'running' ? 'true' : 'false' %>">
+        <%= formatDuration(elapsedSeconds(timer)) %>
+      </strong>
+    </div>
+  <% } %>
+
+  <% if (timers.length > 1) { %>
+    <ul class="timer-people" aria-label="Tempo por pessoa">
+      <% timers.forEach(function (row) { %>
+        <li>
+          <span class="avatar avatar-sm av-<%= row.user_id % 6 %>" aria-hidden="true"><%= initials(row.user_name) %></span>
+          <span class="timer-person-name"><%= row.user_name %></span>
+          <span class="muted small"><%= row.status === 'running' ? 'em andamento' : row.status === 'paused' ? 'pausado' : 'concluído' %></span>
+          <strong><%= formatDuration(elapsedSeconds(row)) %></strong>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+
+  <% if (canTime) { %>
+    <p class="timer-hint">
+      Use os ícones no canto superior direito deste job para iniciar, pausar e concluir.
+      <%= request.status === 'Novo'
+        ? 'Iniciar o timer move o job para Em andamento.'
+        : request.status === 'Em andamento'
+          ? 'Ao concluir, o job vai para Em processo (revisão do administrador).'
+          : 'O timer registra o tempo trabalhado neste job.' %>
+    </p>
+  <% } else { %>
+    <p class="timer-hint">Somente o responsável pelo job ou o administrador pode controlar o timer.</p>
+  <% } %>
+</section>
